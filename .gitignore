@@ -1,0 +1,5 @@
+*.pt
+*.avi
+*.mp4
+*venv*
+*__pycache__*
