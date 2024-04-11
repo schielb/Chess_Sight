@@ -1,3 +1,5 @@
 .venv
 games/
 pics/
+*.pt
+__pycache__
