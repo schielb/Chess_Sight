@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 12
+names: ['B', 'K', 'N', 'P', 'Q', 'R', 'b', 'k', 'n', 'p', 'q', 'r']
+
+roboflow:
+  workspace: init-4i2tt
+  project: chess-pieces-u32uy
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/init-4i2tt/chess-pieces-u32uy/dataset/2
