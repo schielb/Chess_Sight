@@ -1,3 +1,8 @@
-.venv
+*.pt
+*.avi
+*.mp4
+*venv*
+*__pycache__*
+*.cache
 games/
 pics/
