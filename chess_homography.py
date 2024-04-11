@@ -110,7 +110,7 @@ def show_board_labels(img, pts, patttern_size):
 def get_board(query, canvas, pts, patttern_size:tuple=(8,8), plot:bool=False):
     ret, pts1, pts2 = tranform_points(query.copy(), canvas.copy(), pts, plot)
     if not ret:
-        return False, None
+        return False, None, None
     if plot:
         img = canvas.copy()
         show_board_labels(img, pts2, patttern_size)
@@ -120,12 +120,12 @@ def get_board(query, canvas, pts, patttern_size:tuple=(8,8), plot:bool=False):
     
     
     # TODO: Integrate Chris's Detection Algorithm
-    # img1 = cv.cvtColor(warped_canvas, cv.COLOR_RGB2GRAY)
-    # img1 = cv.GaussianBlur(img1, (3, 3), 0)
-    # img2 = cv.cvtColor(query, cv.COLOR_RGB2GRAY)
-    # img2 = cv.GaussianBlur(img1, (3, 3), 0)
-    # diff = cv.absdiff(img1, img2)
-    return ret, warped_canvas
+    img1 = cv.cvtColor(warped_canvas, cv.COLOR_RGB2GRAY)
+    img1 = cv.GaussianBlur(img1, (3, 3), 0)
+    img2 = cv.cvtColor(query, cv.COLOR_RGB2GRAY)
+    img2 = cv.GaussianBlur(img1, (3, 3), 0)
+    diff = cv.absdiff(img1, img2)
+    return ret, warped_canvas, diff
 
 # Get the centers of each square of the chessboard
 def get_centers(img, patttern_size:tuple=(8,8), plot:bool=False):
