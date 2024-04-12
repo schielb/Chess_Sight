@@ -30,6 +30,7 @@ class Chess_Sight:
         self.out_stat_bot_move = False
         self.out_stat_bot_obeyed = False
 
+        self.out_str_player_move = None
         self.out_str_bot_move = None
         self.out_str_suggest = None
 
@@ -84,9 +85,9 @@ class Chess_Sight:
         Returns:
             list: [status, message]
             - [False, "Not player's turn"] -> If it's not the player's turn
-            - [True, <move>] -> If the move was successful
+            - [True, <p_move>, <b_move>] -> If the move was successful, the player's recent move, and bot's next move
             - [False, None] -> If the move was invalid
-            - [True, None] -> If the move was successful and the player wins with checkmate
+            - [True, <p_move>, None] -> If the move was successful, the player's recent move, and the player wins with checkmate
         """
         if self.state != PLAYER_TURN:
             return [False, "Not player's turn"]
@@ -96,7 +97,7 @@ class Chess_Sight:
 
         self.__run()
 
-        return [self.out_stat_player_move, self.out_str_bot_move]
+        return [self.out_stat_player_move, self.out_str_player_move, self.out_str_bot_move]
 
 
     def new_bot_move(self, bot_move_frame):
@@ -135,6 +136,7 @@ class Chess_Sight:
             self.out_stat_player_move = False
             self.out_stat_bot_move = False
             self.out_stat_bot_obeyed = False
+            self.out_str_player_move = None
             self.out_str_bot_move = None
             self.out_str_suggest = None
 
@@ -169,6 +171,7 @@ class Chess_Sight:
                     self.out_stat_player_move = self.mover.attempt_player_move(move)
 
                     if self.out_stat_player_move:
+                        self.out_str_player_move = move
                         self.out_str_bot_move = self.mover.get_best_move()
                         # self.out_str_suggest = self.mover.get_eval()
                         self.prev_state = current_state
