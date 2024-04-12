@@ -106,9 +106,31 @@ def show_board_labels(img, pts, patttern_size):
     plt.imshow(img)
     plt.show()
 
+def get_red_n_blue(img, combine:bool=True, plot:bool=False):
+    hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+    blue = cv.inRange(hsv, (100, 0, 0), (130, 255, 255))
+    red = cv.inRange(hsv, (0, 50, 50), (10, 255, 255))
+    if plot:
+        print(np.max(blue))
+        print(np.max(red))
+        img = np.concatenate(
+            (np.expand_dims(red, axis=0),
+             np.zeros((1, *red.shape)),
+             np.expand_dims(blue, axis=0)),
+            axis=0
+        )
+        img = img.transpose(1,2,0)
+        print(img.shape)
+        plt.figure(figsize=(20, 10))
+        plt.imshow(img)
+        plt.show()
+    if combine:
+        return np.bitwise_or(red, blue)
+    return red, blue
+
 # Gets the Board
-def get_board(query, canvas, pts, patttern_size:tuple=(8,8), plot:bool=False):
-    ret, pts1, pts2 = tranform_points(query.copy(), canvas.copy(), pts, plot)
+def get_board(query, canvas, centers, corners, patttern_size:tuple=(8,8), plot:bool=False):
+    ret, pts1, pts2 = tranform_points(query.copy(), canvas.copy(), centers, plot)
     if not ret:
         return False, None, None
     if plot:
@@ -118,17 +140,17 @@ def get_board(query, canvas, pts, patttern_size:tuple=(8,8), plot:bool=False):
     M, mask = cv.findHomography(pts2, pts1, cv.RANSAC, 5.0)
     warped_canvas = cv.warpPerspective(canvas, M, (width, height))
     
-    
-    # TODO: Integrate Chris's Detection Algorithm
-    img1 = cv.cvtColor(warped_canvas, cv.COLOR_RGB2GRAY)
-    img1 = cv.GaussianBlur(img1, (3, 3), 0)
-    img2 = cv.cvtColor(query, cv.COLOR_RGB2GRAY)
-    img2 = cv.GaussianBlur(img1, (3, 3), 0)
-    diff = cv.absdiff(img1, img2)
-    return ret, warped_canvas, diff
+    pieces = get_red_n_blue(warped_canvas, plot=True)
+    # # TODO: Integrate Chris's Detection Algorithm
+    # img1 = cv.cvtColor(warped_canvas, cv.COLOR_RGB2GRAY)
+    # img1 = cv.GaussianBlur(img1, (3, 3), 0)
+    # img2 = cv.cvtColor(query, cv.COLOR_RGB2GRAY)
+    # img2 = cv.GaussianBlur(img1, (3, 3), 0)
+    # diff = cv.absdiff(img1, img2)
+    return ret, warped_canvas, pieces
 
 # Get the centers of each square of the chessboard
-def get_centers(img, patttern_size:tuple=(8,8), plot:bool=False):
+def get_centers(img, patttern_size:tuple=(8,8), return_corners:bool=True, plot:bool=False):
     assert not isinstance(img, type(None)) # confirm that there is an image
     # Differentiate between chessboard size, chessboard find corners, and chesboard corners
     search_pattern = (patttern_size[0]-1, patttern_size[1]-1)
@@ -186,8 +208,14 @@ def get_centers(img, patttern_size:tuple=(8,8), plot:bool=False):
     ########################################################################################################
     # Plot image and return
     ########################################################################################################
-    if img.shape == 2:
-        img = cv.cvtColor(img, cv.COLOR_GRAY2RGB)
+    
+    if return_corners:
+        if ret and plot:
+            crnr_pattern = (patttern_size[0]+1, patttern_size[1]+1)
+            cv.drawChessboardCorners(img, patttern_size, centers, ret)
+            cv.drawChessboardCorners(img, crnr_pattern, corners, ret)
+            plt.imshow(img)
+        return centers, corners if ret else None, None
     if ret and plot:
         cv.drawChessboardCorners(img, patttern_size, centers, ret)
         plt.imshow(img)
