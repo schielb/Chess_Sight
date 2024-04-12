@@ -43,6 +43,8 @@ class Chess_Sight:
             'a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8'
         ]
 
+        self.__run()
+
     def start_game(self, player_first=True, difficulty=10):
         """Start the game
 
