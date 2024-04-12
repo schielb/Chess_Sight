@@ -125,90 +125,87 @@ class Chess_Sight:
 
 
     def __run(self):
-        while True:
-            if self.state == INIT:
-                # Reset incoming signals
+        if self.state == INIT:
+            # Reset incoming signals
+            self.sig_start_game = False
+            self.sig_player_moved = False
+            self.sig_bot_moved = False
+
+            # Reset outgoing signals
+            self.out_stat_player_move = False
+            self.out_stat_bot_move = False
+            self.out_stat_bot_obeyed = False
+            self.out_str_bot_move = None
+            self.out_str_suggest = None
+
+
+
+            print("Welcome to Chess Sight")
+            self.state = READY_TO_PLAY
+
+
+        elif self.state == READY_TO_PLAY:
+            if self.sig_start_game:
                 self.sig_start_game = False
+
+                if self.player_first:
+                    self.state = PLAYER_TURN
+                    if self.debug: print("STATE: READY_TO_PLAY -> PLAYER_TURN")
+                else:
+                    self.state = COMPUTER_TURN
+                    if self.debug: print("STATE: READY_TO_PLAY -> COMPUTER_TURN")
+
+
+        elif self.state == PLAYER_TURN:
+            if self.sig_player_moved:
                 self.sig_player_moved = False
+
+                ret, reference, diff, occupancy, current_state = get_board(self.query, reference, self.centers, self.corners, plot=False)
+
+                if ret:
+                    start, end = get_move(self.prev_state, current_state)
+                    move = start + end
+
+                    self.out_stat_player_move = self.mover.attempt_player_move(move)
+
+                    if self.out_stat_player_move:
+                        self.out_str_bot_move = self.mover.get_best_move()
+                        # self.out_str_suggest = self.mover.get_eval()
+                        self.prev_state = current_state
+                        self.state = COMPUTER_TURN
+                        if self.debug: print("STATE: PLAYER_TURN -> VERIFY_PLAYER")
+                    else:
+                        print("Invalid move")
+                        self.state = PLAYER_TURN
+                        if self.debug: print("STATE: PLAYER_TURN -> PLAYER_TURN")
+
+
+        elif self.state == COMPUTER_TURN:
+            if self.sig_bot_moved:
                 self.sig_bot_moved = False
 
-                # Reset outgoing signals
-                self.out_stat_player_move = False
-                self.out_stat_bot_move = False
-                self.out_stat_bot_obeyed = False
-                self.out_str_bot_move = None
-                self.out_str_suggest = None
+                ret, reference, diff, occupancy, current_state = get_board(self.query, reference, self.centers, self.corners, plot=False)
 
+                self.out_stat_bot_move = ret
 
+                if ret:
+                    start, end = get_move(self.prev_state, current_state)
+                    move = start + end
 
-                print("Welcome to Chess Sight")
-                self.state = READY_TO_PLAY
-
-
-            elif self.state == READY_TO_PLAY:
-                if self.sig_start_game:
-                    self.sig_start_game = False
-
-                    if self.player_first:
+                    self.out_stat_bot_obeyed = move == self.out_str_bot_move
+                    
+                    if self.out_stat_bot_obeyed:
+                        self.prev_state = current_state
                         self.state = PLAYER_TURN
-                        if self.debug: print("STATE: READY_TO_PLAY -> PLAYER_TURN")
+                        if self.debug: print("STATE: COMPUTER_TURN -> PLAYER_TURN")
                     else:
+                        print("Bot move not followed!")
                         self.state = COMPUTER_TURN
-                        if self.debug: print("STATE: READY_TO_PLAY -> COMPUTER_TURN")
+                        if self.debug: print("STATE: COMPUTER_TURN -> COMPUTER_TURN")
 
 
-            elif self.state == PLAYER_TURN:
-                if self.sig_player_moved:
-                    self.sig_player_moved = False
-
-                    ret, reference, diff, occupancy, current_state = get_board(self.query, reference, self.centers, self.corners, plot=False)
-
-                    if ret:
-                        start, end = get_move(self.prev_state, current_state)
-                        move = start + end
-
-                        self.out_stat_player_move = self.mover.attempt_player_move(move)
-
-                        if self.out_stat_player_move:
-                            self.out_str_bot_move = self.mover.get_best_move()
-                            # self.out_str_suggest = self.mover.get_eval()
-                            self.prev_state = current_state
-                            self.state = COMPUTER_TURN
-                            if self.debug: print("STATE: PLAYER_TURN -> VERIFY_PLAYER")
-                        else:
-                            print("Invalid move")
-                            self.state = PLAYER_TURN
-                            if self.debug: print("STATE: PLAYER_TURN -> PLAYER_TURN")
-
-
-            elif self.state == COMPUTER_TURN:
-                if self.sig_bot_moved:
-                    self.sig_bot_moved = False
-
-                    ret, reference, diff, occupancy, current_state = get_board(self.query, reference, self.centers, self.corners, plot=False)
-
-                    self.out_stat_bot_move = ret
-
-                    if ret:
-                        start, end = get_move(self.prev_state, current_state)
-                        move = start + end
-
-                        self.out_stat_bot_obeyed = move == self.out_str_bot_move
-                        
-                        if self.out_stat_bot_obeyed:
-                            self.prev_state = current_state
-                            self.state = PLAYER_TURN
-                            if self.debug: print("STATE: COMPUTER_TURN -> PLAYER_TURN")
-                        else:
-                            print("Bot move not followed!")
-                            self.state = COMPUTER_TURN
-                            if self.debug: print("STATE: COMPUTER_TURN -> COMPUTER_TURN")
-
-
-            elif self.state == GAME_OVER:
-                print("Game Over")
-                break
-            else:
-                print("Invalid state")
-                break
+        elif self.state == GAME_OVER:
+            print("Game Over")
+        else:
+            print("Invalid state")
 
