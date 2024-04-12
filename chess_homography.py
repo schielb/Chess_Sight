@@ -5,6 +5,7 @@ import matplotlib
 from PIL import Image
 
 MIN_MATCH_COUNT = 4
+SQUARE_THRESHOLD = 100000
 font_args = dict(
     fontFace=cv.FONT_HERSHEY_SIMPLEX,
     fontScale = 1.5,
@@ -151,8 +152,11 @@ def get_board(query, canvas, centers, corners, patttern_size:tuple=(8,8), plot:b
     crnr_size = (patttern_size[0] + 1, patttern_size[1] + 1)
     corners_reshaped = corners.reshape(*crnr_size,2)
     occupancy = []
+    spaces_occupant = []
+    space = []
     for i in reversed(range(patttern_size[0])):
         row = []
+        t_row = []
         for j in range(patttern_size[1]):
             four_corners = corners_reshaped[i:i+2, j:j+2, :]
             right =     int((four_corners[0, 0, 0] + four_corners[0, 1, 0]) // 2)
@@ -160,17 +164,38 @@ def get_board(query, canvas, centers, corners, patttern_size:tuple=(8,8), plot:b
             top =       int((four_corners[0, 0, 1] + four_corners[1, 0, 1]) // 2)
             bottom =    int((four_corners[0, 1, 1] + four_corners[1, 1, 1]) // 2)
             value = np.sum(pieces[left:right, top:bottom])
-            row.append(value > 100000)
+            presence = value > SQUARE_THRESHOLD
+            name = f"{chr(ord('h')-i)}{j+1}"
+            if presence:
+                spaces_occupant.append(name)
+            row.append(presence)
+            t_row.append(name)
         occupancy.append(row)
+        space.append(t_row)
     occupancy = np.array(occupancy)
-    print(occupancy)
+    space = np.array(space)
+    print(space)
     # # TODO: Integrate Chris's Detection Algorithm
     # img1 = cv.cvtColor(warped_canvas, cv.COLOR_RGB2GRAY)
     # img1 = cv.GaussianBlur(img1, (3, 3), 0)
     # img2 = cv.cvtColor(query, cv.COLOR_RGB2GRAY)
     # img2 = cv.GaussianBlur(img1, (3, 3), 0)
     # diff = cv.absdiff(img1, img2)
-    return ret, warped_canvas, pieces
+    return ret, warped_canvas, pieces, occupancy, spaces_occupant
+
+def get_move(state_prev, state_current):
+    state_prev = set(state_prev)
+    state_current = set(state_current)
+    state_intersection = state_current.intersection(state_prev)
+    start_locs = list(state_prev.difference(state_intersection))
+    end_locs = list(state_current.difference(state_intersection))
+    if len(start_locs) != len(end_locs):
+        print("ERROR: expected states to have equal occupancies")
+    if len(start_locs) > 1:
+        print("ERROR: more than one change occurred. Don't know how to resolve changes")
+    if len(start_locs) == 0:
+        print("WARNING: No change occurred")
+    return start_locs, end_locs
 
 # Get the centers of each square of the chessboard
 def get_centers(img, patttern_size:tuple=(8,8), return_corners:bool=True, plot:bool=False):
