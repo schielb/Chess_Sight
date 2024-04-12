@@ -5,6 +5,7 @@ import matplotlib
 from PIL import Image
 
 MIN_MATCH_COUNT = 4
+SQUARE_THRESHOLD = 100000
 font_args = dict(
     fontFace=cv.FONT_HERSHEY_SIMPLEX,
     fontScale = 1.5,
@@ -106,9 +107,37 @@ def show_board_labels(img, pts, patttern_size):
     plt.imshow(img)
     plt.show()
 
+def get_red_n_blue(img, combine:bool=True, plot:bool=False):
+    hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+    blue = cv.inRange(hsv, (100, 0, 0), (130, 255, 255))
+    blue = cv.GaussianBlur(blue,(21,21),0)
+    _, blue = cv.threshold(blue, 50, 255, cv.THRESH_BINARY)
+    red = cv.inRange(hsv, (0, 50, 50), (10, 255, 255))
+    red = cv.GaussianBlur(red,(21,21),0)
+    _, red = cv.threshold(red, 50, 255, cv.THRESH_BINARY)
+    if plot:
+        print(np.max(blue))
+        print(np.max(red))
+        img = np.concatenate(
+            (np.expand_dims(red, axis=0),
+             np.zeros((1, *red.shape)),
+             np.expand_dims(blue, axis=0)),
+            axis=0
+        )
+        img = img.transpose(1,2,0)
+        print(img.shape)
+        plt.figure(figsize=(20, 10))
+        plt.imshow(img)
+        plt.show()
+    if combine:
+        return np.bitwise_or(red, blue)
+    return red, blue
+
+# def check_square(img, corners):
+
 # Gets the Board
-def get_board(query, canvas, pts, patttern_size:tuple=(8,8), plot:bool=False):
-    ret, pts1, pts2 = tranform_points(query.copy(), canvas.copy(), pts, plot)
+def get_board(query, canvas, centers, corners, patttern_size:tuple=(8,8), plot:bool=False):
+    ret, pts1, pts2 = tranform_points(query.copy(), canvas.copy(), centers, plot)
     if not ret:
         return False, None, None
     if plot:
@@ -118,17 +147,58 @@ def get_board(query, canvas, pts, patttern_size:tuple=(8,8), plot:bool=False):
     M, mask = cv.findHomography(pts2, pts1, cv.RANSAC, 5.0)
     warped_canvas = cv.warpPerspective(canvas, M, (width, height))
     
-    
-    # TODO: Integrate Chris's Detection Algorithm
-    img1 = cv.cvtColor(warped_canvas, cv.COLOR_RGB2GRAY)
-    img1 = cv.GaussianBlur(img1, (3, 3), 0)
-    img2 = cv.cvtColor(query, cv.COLOR_RGB2GRAY)
-    img2 = cv.GaussianBlur(img1, (3, 3), 0)
-    diff = cv.absdiff(img1, img2)
-    return ret, warped_canvas, diff
+    pieces = get_red_n_blue(warped_canvas, plot=plot)
+
+    crnr_size = (patttern_size[0] + 1, patttern_size[1] + 1)
+    corners_reshaped = corners.reshape(*crnr_size,2)
+    occupancy = []
+    spaces_occupant = []
+    space = []
+    for i in reversed(range(patttern_size[0])):
+        row = []
+        t_row = []
+        for j in range(patttern_size[1]):
+            four_corners = corners_reshaped[i:i+2, j:j+2, :]
+            right =     int((four_corners[0, 0, 0] + four_corners[0, 1, 0]) // 2)
+            left =      int((four_corners[1, 0, 0] + four_corners[1, 1, 0]) // 2)
+            top =       int((four_corners[0, 0, 1] + four_corners[1, 0, 1]) // 2)
+            bottom =    int((four_corners[0, 1, 1] + four_corners[1, 1, 1]) // 2)
+            value = np.sum(pieces[left:right, top:bottom])
+            presence = value > SQUARE_THRESHOLD
+            name = f"{chr(ord('h')-i)}{j+1}"
+            if presence:
+                spaces_occupant.append(name)
+            row.append(presence)
+            t_row.append(name)
+        occupancy.append(row)
+        space.append(t_row)
+    occupancy = np.array(occupancy)
+    space = np.array(space)
+    print(space)
+    # # TODO: Integrate Chris's Detection Algorithm
+    # img1 = cv.cvtColor(warped_canvas, cv.COLOR_RGB2GRAY)
+    # img1 = cv.GaussianBlur(img1, (3, 3), 0)
+    # img2 = cv.cvtColor(query, cv.COLOR_RGB2GRAY)
+    # img2 = cv.GaussianBlur(img1, (3, 3), 0)
+    # diff = cv.absdiff(img1, img2)
+    return ret, warped_canvas, pieces, occupancy, spaces_occupant
+
+def get_move(state_prev, state_current):
+    state_prev = set(state_prev)
+    state_current = set(state_current)
+    state_intersection = state_current.intersection(state_prev)
+    start_locs = list(state_prev.difference(state_intersection))
+    end_locs = list(state_current.difference(state_intersection))
+    if len(start_locs) != len(end_locs):
+        print("ERROR: expected states to have equal occupancies")
+    if len(start_locs) > 1:
+        print("ERROR: more than one change occurred. Don't know how to resolve changes")
+    if len(start_locs) == 0:
+        print("WARNING: No change occurred")
+    return start_locs, end_locs
 
 # Get the centers of each square of the chessboard
-def get_centers(img, patttern_size:tuple=(8,8), plot:bool=False):
+def get_centers(img, patttern_size:tuple=(8,8), return_corners:bool=True, plot:bool=False):
     assert not isinstance(img, type(None)) # confirm that there is an image
     # Differentiate between chessboard size, chessboard find corners, and chesboard corners
     search_pattern = (patttern_size[0]-1, patttern_size[1]-1)
@@ -186,8 +256,14 @@ def get_centers(img, patttern_size:tuple=(8,8), plot:bool=False):
     ########################################################################################################
     # Plot image and return
     ########################################################################################################
-    if img.shape == 2:
-        img = cv.cvtColor(img, cv.COLOR_GRAY2RGB)
+    
+    if return_corners:
+        if ret and plot:
+            crnr_pattern = (patttern_size[0]+1, patttern_size[1]+1)
+            cv.drawChessboardCorners(img, patttern_size, centers, ret)
+            cv.drawChessboardCorners(img, crnr_pattern, corners, ret)
+            plt.imshow(img)
+        return (centers, corners) if ret else (None, None)
     if ret and plot:
         cv.drawChessboardCorners(img, patttern_size, centers, ret)
         plt.imshow(img)
