@@ -147,7 +147,7 @@ def get_board(query, canvas, centers, corners, patttern_size:tuple=(8,8), plot:b
     M, mask = cv.findHomography(pts2, pts1, cv.RANSAC, 5.0)
     warped_canvas = cv.warpPerspective(canvas, M, (width, height))
     
-    pieces = get_red_n_blue(warped_canvas, plot=True)
+    pieces = get_red_n_blue(warped_canvas, plot=plot)
 
     crnr_size = (patttern_size[0] + 1, patttern_size[1] + 1)
     corners_reshaped = corners.reshape(*crnr_size,2)
