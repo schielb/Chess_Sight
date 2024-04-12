@@ -109,7 +109,11 @@ def show_board_labels(img, pts, patttern_size):
 def get_red_n_blue(img, combine:bool=True, plot:bool=False):
     hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
     blue = cv.inRange(hsv, (100, 0, 0), (130, 255, 255))
+    blue = cv.GaussianBlur(blue,(21,21),0)
+    _, blue = cv.threshold(blue, 50, 255, cv.THRESH_BINARY)
     red = cv.inRange(hsv, (0, 50, 50), (10, 255, 255))
+    red = cv.GaussianBlur(red,(21,21),0)
+    _, red = cv.threshold(red, 50, 255, cv.THRESH_BINARY)
     if plot:
         print(np.max(blue))
         print(np.max(red))
@@ -128,6 +132,8 @@ def get_red_n_blue(img, combine:bool=True, plot:bool=False):
         return np.bitwise_or(red, blue)
     return red, blue
 
+# def check_square(img, corners):
+
 # Gets the Board
 def get_board(query, canvas, centers, corners, patttern_size:tuple=(8,8), plot:bool=False):
     ret, pts1, pts2 = tranform_points(query.copy(), canvas.copy(), centers, plot)
@@ -141,6 +147,23 @@ def get_board(query, canvas, centers, corners, patttern_size:tuple=(8,8), plot:b
     warped_canvas = cv.warpPerspective(canvas, M, (width, height))
     
     pieces = get_red_n_blue(warped_canvas, plot=True)
+
+    crnr_size = (patttern_size[0] + 1, patttern_size[1] + 1)
+    corners_reshaped = corners.reshape(*crnr_size,2)
+    occupancy = []
+    for i in reversed(range(patttern_size[0])):
+        row = []
+        for j in range(patttern_size[1]):
+            four_corners = corners_reshaped[i:i+2, j:j+2, :]
+            right =     int((four_corners[0, 0, 0] + four_corners[0, 1, 0]) // 2)
+            left =      int((four_corners[1, 0, 0] + four_corners[1, 1, 0]) // 2)
+            top =       int((four_corners[0, 0, 1] + four_corners[1, 0, 1]) // 2)
+            bottom =    int((four_corners[0, 1, 1] + four_corners[1, 1, 1]) // 2)
+            value = np.sum(pieces[left:right, top:bottom])
+            row.append(value > 100000)
+        occupancy.append(row)
+    occupancy = np.array(occupancy)
+    print(occupancy)
     # # TODO: Integrate Chris's Detection Algorithm
     # img1 = cv.cvtColor(warped_canvas, cv.COLOR_RGB2GRAY)
     # img1 = cv.GaussianBlur(img1, (3, 3), 0)
@@ -215,7 +238,7 @@ def get_centers(img, patttern_size:tuple=(8,8), return_corners:bool=True, plot:b
             cv.drawChessboardCorners(img, patttern_size, centers, ret)
             cv.drawChessboardCorners(img, crnr_pattern, corners, ret)
             plt.imshow(img)
-        return centers, corners if ret else None, None
+        return (centers, corners) if ret else (None, None)
     if ret and plot:
         cv.drawChessboardCorners(img, patttern_size, centers, ret)
         plt.imshow(img)
