@@ -164,6 +164,8 @@ class Chess_Sight:
 
                 ret, reference, diff, occupancy, current_state = get_board(self.query, self.reference, self.centers, self.corners, plot=False)
 
+                if self.debug: print("Move attempt: ", ret)
+
                 if ret:
                     start, end = get_move(self.prev_state, current_state)
                     move = start + end
@@ -190,6 +192,8 @@ class Chess_Sight:
                 ret, reference, diff, occupancy, current_state = get_board(self.query, self.reference, self.centers, self.corners, plot=False)
 
                 self.out_stat_bot_move = ret
+
+                if self.debug: print("Bot attempt: ", ret)
 
                 if ret:
                     start, end = get_move(self.prev_state, current_state)
