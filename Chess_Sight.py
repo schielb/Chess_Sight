@@ -85,9 +85,9 @@ class Chess_Sight:
         Returns:
             list: [status, message]
             - [False, "Not player's turn"] -> If it's not the player's turn
-            - [True, <p_move>, <b_move>] -> If the move was successful, the player's recent and bot's next move
+            - [True, <p_move>, <b_move>] -> If the move was successful, the player's recent move, and bot's next move
             - [False, None] -> If the move was invalid
-            - [True, None] -> If the move was successful and the player wins with checkmate
+            - [True, <p_move>, None] -> If the move was successful, the player's recent move, and the player wins with checkmate
         """
         if self.state != PLAYER_TURN:
             return [False, "Not player's turn"]
