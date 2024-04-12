@@ -53,12 +53,14 @@ class_limits = {
 #     results = list(results)
 
 results = model.predict(
-        source=f"{prefix}/test-vid.webm",
+        source=f"{prefix}/static/thumb_none.jpg",
         project="runs/train-chess",
         name="exp",
         save=True,
         stream=True,
         device="cuda",
         max_det=32,
+        show_conf=False,
+        show_labels=False,
     )
 results = list(results)

@@ -24,6 +24,12 @@ class ChessMover:
     def get_board_visual(self):
         return self.sf.get_board_visual()
     
+    def get_eval(self):
+        return self.sf.get_evaluation()
+    
+    def set_sf_path(self, path):
+        self.sf = Stockfish(path)
+    
     
 if __name__ == '__main__':
     mover = ChessMover()
