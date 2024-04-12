@@ -14,6 +14,10 @@
         .video-feed-container {
             height: 100%;
             overflow: hidden;
+            background-color: #546237;
+            border-radius: 20px;
+            padding: 1%;
+            box-shadow: 5px 10px 30px;
         }
 
         .controls-box {
@@ -30,54 +34,19 @@
 
 <body style="background-color: #638656;">
 
-    <!-- <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #8E7051;">
-        <div class="container d-flex justify-content-center align-items-center">
-            <img src="{{ url_for('static', filename='chess_sight.png') }}" alt="Chess Sight Logo" width="75" height="75"
-                class="d-inline-block align-top me-2">
-            <h2 class="navbar-brand"
-                style="font-size: 3rem; border-radius: 50%; color: #E0D8BD; font-family: 'Garamond', 'serif';">
-                Chess Sight
-            </h2>
-        </div>
-    </nav> -->
-
-    <!-- <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #8E7051; padding: 15px 0; position: relative;">
-        <div class="container d-flex justify-content-start align-items-center">
-            <h2 class="navbar-brand"
-            style="font-size: 3rem; color: #E0D8BD; font-family: 'Garamond', 'serif'; margin: 0; ">
-            Chess Sight
-        </h2>
-            <img src="{{ url_for('static', filename='chess_sight.png') }}" alt="Chess Sight Logo" width="125" height="125"
-                style="position: absolute; top: 1%; left: 10%;">
-        </div>
-    </nav> -->
-
-    <!-- <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #8E7051; padding: 15px 0; position: relative;">
-        <div class="container d-flex align-items-center">
-            <div style="position: relative; ">
-                <img src="{{ url_for('static', filename='chess_sight.png') }}" alt="Chess Sight Logo" width="125" height="125"
-                    style="position: absolute; top: 1%; left: 10%;">
-                <h2 class="navbar-brand" style="font-size: 3rem; color: #E0D8BD; font-family: 'Garamond', 'serif'; margin: 0; padding-left: 200px;">
-                    Chess Sight
-                </h2>
-            </div>
-        </div>
-    </nav> -->
-
-    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #8E7051; padding: 15px 0; position: relative;">
+    <nav class="navbar navbar-expand-lg navbar-light"
+        style="background-color: #8E7051; padding: 15px 0; position: relative; box-shadow: 1px 1px 25px">
         <div class="container d-flex align-items-center" style="margin-left: 5%;">
             <div style="position: relative;">
-                <img src="{{ url_for('static', filename='chess_sight.png') }}" alt="Chess Sight Logo" width="125" height="125"
-                    style="position: absolute; top: -20%; left: -10%;">
-                <h2 class="navbar-brand" style="font-size: 3rem; color: #E0D8BD; font-family: 'Garamond', 'serif'; margin: 0; padding-left: 100px;">
+                <img src="{{ url_for('static', filename='chess_sight.png') }}" alt="Chess Sight Logo" width="125"
+                    height="125" style="position: absolute; top: -20%; left: -10%;">
+                <h2 class="navbar-brand"
+                    style="font-size: 3rem; color: #E0D8BD; font-family: 'Garamond', 'serif'; margin: 0; padding-left: 125px;">
                     Chess Sight
                 </h2>
             </div>
         </div>
     </nav>
-    
-    
-    
 
     <div class="container-fluid" style="padding-top: 2.5%; width: 95%;">
         <div class="row">
@@ -94,38 +63,41 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="box-container p-3 controls-box">
+                <div class="box-container p-3 controls-box" style="box-shadow: 5px 10px 30px;">
                     <div class="btn-group" role="group" style="padding-bottom: 5%;">
-                        <button class="btn" id="history-tab" style="background-color: #E0D8BD;">
+                        <button class="btn" id="history-settings-tab" style="background-color: #E0D8BD;">
                             <i class="bi bi-clock-history" style="color: #284D22"></i>
                         </button>
-                        <button class="btn " id="settings-tab" style="background-color: #9FCC9E;">
+                        <!-- <button class="btn " id="settings-tab" style="background-color: #9FCC9E;">
                             <i class="bi bi-sliders" style="color: #284D22"></i>
-                        </button>
+                        </button> -->
                         <button class="btn" id="views-tab" style="background-color: #9FCC9E;">
                             <i class="bi bi-eye" style="color: #284D22"></i>
                         </button>
                     </div>
-                    <div id="history-box"
-                        style="height: 100%; overflow-y: auto; overflow-x: hidden; padding-bottom: 5%;">
-                        <textarea class="form-control mb-3" rows="4"
-                            style="background-color: #284D22; color: #E0D8BD; height: 95%;" readonly>history</textarea>
-                    </div>
-                    <div id="settings-box"
+                    <div id="settings-box" class="text-center"
                         style="height: 100%; overflow-y: auto; overflow-x: hidden; padding-bottom: 5%; display: none;">
                         <h4 style="color: #E0D8BD; ">Player color:</h4>
                         <div class="btn-group" role="group" aria-label="First group">
-                            <button type="button" class="btn btn-danger">Red</button>
-                            <button type="button" class="btn btn-outline-primary">Blue</button>
+                            <button type="button" id="player-1" class="btn"
+                                style="background-color:#E0D8BD; color:#284D22;">Blue</button>
+                            <button type="button" id="player-2" class="btn"
+                                style="background-color: #9FCC9E; color:#284D22;">Red</button>
                         </div>
                         <h4 style="color: #E0D8BD; padding-top: 5%;">Match difficulty</h4>
                         <div class="btn-group" role="group" aria-label="First group">
-                            <button type="button" class="btn btn-success">Easy</button>
-                            <button type="button" class="btn btn-outline-warning">Medium</button>
-                            <button type="button" class="btn btn-outline-danger">Hard</button>
+                            <button type="button" id="difficulty-easy" class="btn"
+                                style="background-color: #E0D8BD; color:#284D22;">Easy</button>
+                            <button type="button" id="difficulty-med" class="btn"
+                                style="background-color: #9FCC9E; color:#284D22;">Medium</button>
+                            <button type="button" id="difficulty-hard" class="btn"
+                                style="background-color: #9FCC9E; color:#284D22;">Hard</button>
                         </div>
-                        <h4 style="color: #E0D8BD; padding-top: 5%;">Win-Loss-Draw</h4>
-                        <p>Graph here</p>
+                    </div>
+                    <div id="history-box"
+                        style="height: 100%; overflow-y: auto; overflow-x: hidden; padding-bottom: 5%;">
+                        <textarea class="form-control mb-3" rows="4"
+                            style="background-color: #284D22; color: #E0D8BD; height: 95%;" readonly></textarea>
                     </div>
                     <div id="views-box"
                         style="height: 100%; overflow-y: auto; overflow-x: hidden; padding-bottom: 5%; display: none;">
@@ -169,7 +141,7 @@
                         <div class="btn-group" role="group" aria-label="First group">
                             <button id="uploadBtn" class="btn btn-lg"
                                 style="font-size: 2em; border-radius: 20%; background-color: #284D22; color: #E0D8BD">
-                                <i class="bi bi-check-lg"></i>
+                                <i class="bi bi-play-fill"></i>
                             </button>
                         </div>
 
@@ -186,36 +158,56 @@
 
 <script>
 
-    var activeTab = 'history-tab';
+    var activeTab = 'history-settings-tab';
     var activeView = 'aided';
+    var playerColor = 'blue';
+    var game_start = false;
+    var isPlayerMove = false;
+    var playerDifficulty = 'easy';
 
     $(document).ready(function () {
-        $('#history-tab').click(function () {
-            activeTab = 'history-tab';
-            $('#history-tab').css('background-color', '#E0D8BD');
-            $('#settings-tab').css('background-color', '#9FCC9E');
-            $('#views-tab').css('background-color', '#9FCC9E');
-
+        if (game_start) {
             $('#history-box').show();
             $('#settings-box').hide();
-            $('#views-box').hide();
-        });
-
-        $('#settings-tab').click(function () {
-            activeTab = 'settings-tab';
-            $('#history-tab').css('background-color', '#9FCC9E');
-            $('#settings-tab').css('background-color', '#E0D8BD');
+            $('#history-settings-tab').html('<i class="bi bi-clock-history"></i>');
+        }
+        else {
+            $('#settings-box').show();
+            $('#history-box').hide();
+            $('#history-settings-tab').html('<i class="bi bi-sliders"></i>');
+        }
+        $('#history-settings-tab').click(function () {
+            activeTab = 'history-settings-tab';
+            $('#history-settings-tab').css('background-color', '#E0D8BD');
+            // $('#settings-tab').css('background-color', '#9FCC9E');
             $('#views-tab').css('background-color', '#9FCC9E');
 
-            $('#history-box').hide();
-            $('#settings-box').show();
+            if (game_start) {
+                $('#history-box').show();
+                $('#history-settings-tab').html('<i class="bi bi-clock-history"></i>');
+            }
+            else {
+                $('#settings-box').show();
+                $('#history-settings-tab').html('<i class="bi bi-sliders"></i>');
+            }
             $('#views-box').hide();
         });
+
+        // $('#settings-tab').click(function () {
+        //     activeTab = 'settings-tab';
+        //     $('#history-tab').css('background-color', '#9FCC9E');
+        //     $('#settings-tab').css('background-color', '#E0D8BD');
+        //     $('#views-tab').css('background-color', '#9FCC9E');
+
+        //     $('#history-box').hide();
+        //     $('#settings-box').show();
+        //     $('#views-box').hide();
+        // });
 
         $('#views-tab').click(function () {
             activeTab = 'views-tab';
-            $('#history-tab').css('background-color', '#9FCC9E');
-            $('#settings-tab').css('background-color', '#9FCC9E');
+            $('#history-settings-tab').css('background-color', '#9FCC9E');
+            // $('#settings-tab').css('background-color', '#9FCC9E');
             $('#views-tab').css('background-color', '#E0D8BD');
 
             $('#history-box').hide();
@@ -224,7 +216,61 @@
         });
 
         $('#uploadBtn').click(function () {
-            $('textarea').val('Upload button clicked');
+
+            if (game_start) {
+                // POST to /move
+                $.ajax({
+                    type: 'GET',
+                    url: '/move',
+                    success: function (response) {
+                        response = JSON.parse(response);
+
+                        if (response['status']) {
+                            $('#history-box').val(response['history']);
+                            if (response['player_move']) {
+                                $('#uploadBtn').html('<i class="bi bi-check-lg"></i>');
+                            }
+                            else {
+                                $('#uploadBtn').html('<i class="bi bi-robot"></i>');
+                            }
+                        }
+                        else {
+                            alert(response['status']);
+                        }
+                    }
+                });
+            }
+            else {
+                game_start = true;
+
+                // POST to /start
+                $.ajax({
+                    type: 'POST',
+                    url: '/reset',
+                    contentType: 'application/json', // Set Content-Type header
+                    data: JSON.stringify({          // Serialize data to JSON format
+                        playerColor: playerColor,
+                        playerDifficulty: playerDifficulty
+                    }),
+                    success: function (response) {
+                        response = JSON.parse(response);
+
+                        if (response['status']) {
+                            $('#history-box').val(response['history']);
+                            if (response['player_move']) {
+                                $('#uploadBtn').html('<i class="bi bi-check-lg"></i>');
+                            }
+                            else {
+                                $('#uploadBtn').html('<i class="bi bi-robot"></i>');
+                            }
+                        }
+                    }
+                });
+
+                $('#history-box').show();
+                $('#settings-box').hide();
+                $('#history-settings-tab').html('<i class="bi bi-clock-history"></i>');
+            }
         });
 
         $('#aidedBtn').click(function () {
@@ -254,6 +300,39 @@
             $('#maskedBtn').css('background-color', '#9FCC9E');
             $('#boundedBtn').css('background-color', '#9FCC9E');
             $('#noneBtn').css('background-color', '#E0D8BD');
+        });
+
+        $('#player-1').click(function () {
+            playerColor = 'blue';
+            $('#player-1').css('background-color', '#E0D8BD');
+            $('#player-2').css('background-color', '#9FCC9E');
+        });
+
+        $('#player-2').click(function () {
+            playerColor = 'red';
+            $('#player-1').css('background-color', '#9FCC9E');
+            $('#player-2').css('background-color', '#E0D8BD');
+        });
+
+        $('#difficulty-easy').click(function () {
+            playerDifficulty = 'easy';
+            $('#difficulty-easy').css('background-color', '#E0D8BD');
+            $('#difficulty-med').css('background-color', '#9FCC9E');
+            $('#difficulty-hard').css('background-color', '#9FCC9E');
+        });
+
+        $('#difficulty-med').click(function () {
+            playerDifficulty = 'medium';
+            $('#difficulty-med').css('background-color', '#E0D8BD');
+            $('#difficulty-easy').css('background-color', '#9FCC9E');
+            $('#difficulty-hard').css('background-color', '#9FCC9E');
+        });
+
+        $('#difficulty-hard').click(function () {
+            playerDifficulty = 'hard';
+            $('#difficulty-hard').css('background-color', '#E0D8BD');
+            $('#difficulty-easy').css('background-color', '#9FCC9E');
+            $('#difficulty-med').css('background-color', '#9FCC9E');
         });
 
     });
