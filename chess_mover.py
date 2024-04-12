@@ -3,12 +3,10 @@ from stockfish import Stockfish
 class ChessMover:
     def __init__(self):
         self.sf = Stockfish("/usr/games/stockfish")
-        self.sf.set_skill_level(1)
         self.sf.set_fen_position("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
 
     def get_best_move(self):
-        # self.sf.set_fen_position(fen)
         return self.sf.get_best_move()
     
     def attempt_player_move(self, move: str):
@@ -23,6 +21,21 @@ class ChessMover:
     
     def get_board_visual(self):
         return self.sf.get_board_visual()
+    
+    def get_eval(self):
+        return self.sf.get_evaluation()
+    
+    def set_sf_path(self, path):
+        self.sf = Stockfish(path)
+
+    def get_game_over(self):
+        return self.sf.get
+    
+    def get_move_suggestions(self, num=3):
+        return self.sf.get_top_moves(num)
+    
+    def set_difficulty(self, level):
+        self.sf.set_skill_level(level)
     
     
 # if __name__ == '__main__':
@@ -39,6 +52,3 @@ class ChessMover:
 #         print(mover.get_board_visual())
 
 #         print("Computer move: ", mover.attempt_player_move(mover.get_best_move()))
-
-
-
