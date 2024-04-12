@@ -162,7 +162,7 @@ class Chess_Sight:
             if self.sig_player_moved:
                 self.sig_player_moved = False
 
-                ret, reference, diff, occupancy, current_state = get_board(self.query, reference, self.centers, self.corners, plot=False)
+                ret, reference, diff, occupancy, current_state = get_board(self.query, self.reference, self.centers, self.corners, plot=False)
 
                 if ret:
                     start, end = get_move(self.prev_state, current_state)
@@ -187,7 +187,7 @@ class Chess_Sight:
             if self.sig_bot_moved:
                 self.sig_bot_moved = False
 
-                ret, reference, diff, occupancy, current_state = get_board(self.query, reference, self.centers, self.corners, plot=False)
+                ret, reference, diff, occupancy, current_state = get_board(self.query, self.reference, self.centers, self.corners, plot=False)
 
                 self.out_stat_bot_move = ret
 
