@@ -2,22 +2,26 @@ from flask import Flask, render_template, request, redirect, url_for, Response
 from chess_mover import ChessMover
 from Chess_Sight import Chess_Sight
 import json
+import numpy as np
+from arrow import Chess_Arrow
 
 import cv2
 
 app = Flask(__name__)
 cs = None
+ar = Chess_Arrow()
 number_of_moves = 0
 move_history = []
 eval_num = 50
 player_move = False
 frame = None
-camera = cv2.VideoCapture(4)
+camera = cv2.VideoCapture(0)
 game_over = False
 bot_move = ""
+arrow_frame = None
 
 def generate_frames():
-    global cs, frame, camera
+    global cs, frame, camera, arrow_frame
 
     if not camera.isOpened():
         raise Exception("Could not open video device")
@@ -27,7 +31,11 @@ def generate_frames():
         if not success:
             break
         else:
-            ret, buffer = cv2.imencode('.jpg', frame)
+            if arrow_frame is not None:
+                print("Arrow frame detected...")
+                ret, buffer = cv2.imencode('.jpg', arrow_frame)
+            else:
+                ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
@@ -60,6 +68,8 @@ def start_game():
 
     status, msg = cs.start_game(player_move, player_difficulty)
 
+    if not player_move and status:
+        move_history.append(msg)
     print(msg)
 
     response = {
@@ -75,13 +85,12 @@ def start_game():
 
 @app.route('/move', methods=['GET'])
 def move():
-    global number_of_moves, move_history, eval_num, player_move, cs, frame, camera, game_over, bot_move
+    global number_of_moves, move_history, eval_num, player_move, cs, frame, camera, game_over, bot_move, arrow_frame
     
     success, frame = camera.read()
 
     err_msg = ""
     rec_moves = []
-    # bot_move = ""
 
     if player_move:
         res = cs.new_player_move(frame)
@@ -95,16 +104,21 @@ def move():
         status = res[0]
         if status:
             number_of_moves += 1
-            eval_num = cs.mover.get_eval()
+            eval_num = cs.mover.get_eval()['value']
+            print(eval_num)
+            eval_num = 1.0 / (1.0 + np.exp(-eval_num / 50.0)) * 100
+            print(eval_num)
             if player_move:
                 move_history.append(res[1])
+                arrow_frame = ar.get_arrow(frame, bot_move)
                 if res[2] is None:
                     game_over = True
                 else:
                     bot_move = res[2]
+                    move_history.append(bot_move)
                     game_over = False
             else:
-                move_history.append(bot_move)
+                # move_history.append(bot_move)
                 if res[1] is None:
                     game_over = True
                 else:

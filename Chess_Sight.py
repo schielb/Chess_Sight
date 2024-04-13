@@ -61,6 +61,7 @@ class Chess_Sight:
             - [False, "Game not ready yet"] -> If the game is not ready yet
             - [False, "Game already started"] -> If the game is already started
             - [True, "Game starting"] -> If the game started successfully
+            - [True, <b_move>] -> If the game started successfully and the bot starts first, offering the bot's first move
         """
         if self.state == INIT:
             return [False, "Game not ready yet"]
@@ -74,16 +75,20 @@ class Chess_Sight:
 
         self.mover.set_difficulty(difficulty)
 
+        self.__run() # Switch from READY_TO_PLAY to PLAYER_TURN or COMPUTER_TURN
+
         if player_first:
             self.player_color = 'blue'
             self.bot_color = 'red'
+
+            return [True, "Game starting"]
         else:
             self.player_color = 'red'
             self.bot_color = 'blue'
 
-        self.__run()
+            self.out_str_bot_move = self.mover.get_best_move()
 
-        return [True, "Game starting"]
+            return [True, self.out_str_bot_move]
 
     
     def new_player_move(self, player_move_frame):
@@ -180,6 +185,13 @@ class Chess_Sight:
 
                 if ret:
                     start, end = get_move(self.prev_state[self.player_color], current_state_player)
+                    if len(start) == 0 or len(end) == 0:
+                        print("No move")
+                        self.state = PLAYER_TURN
+                        if self.debug: print("STATE: PLAYER_TURN -> PLAYER_TURN")
+                        self.out_stat_player_move = False
+                        self.out_str_player_move = None
+                        return
                     move = str(start[0]) + str(end[0])
                     print(type(move))
 
@@ -214,7 +226,15 @@ class Chess_Sight:
 
                 if ret:
                     start, end = get_move(self.prev_state[self.bot_color], current_state_bot)
+                    if len(start) == 0 or len(end) == 0:
+                        print("No move")
+                        self.state = COMPUTER_TURN
+                        if self.debug: print("STATE: COMPUTER_TURN -> COMPUTER_TURN")
+                        self.out_stat_bot_move = False
+                        self.out_str_suggest = None
+                        return
                     move = str(start[0]) + str(end[0])
+                    print(move)
 
                     self.out_stat_bot_obeyed = move == self.out_str_bot_move
                     
