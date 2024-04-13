@@ -61,7 +61,13 @@ class Chess_Arrow:
         return frame
     
     def get_masked(self, frame):
-        return get_red_n_blue(frame)
+        red_mask, blue_mask = get_red_n_blue(frame, False)
+
+        # Recolor red to red
+        red = np.where(red_mask == 255)
+        blue = np.where(blue_mask == 255)
+
+        return np.bitwise_or(red, blue)
     
     def get_bounded(self, frame):
         pass
