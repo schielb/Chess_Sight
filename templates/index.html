@@ -228,10 +228,19 @@
                         if (response['status']) {
                             // Loop trough the history and update the textarea on newlines
                             $('#history-log').val('');
+                            let historyText = 'Blue\t\t\t\t\t\tRed\n'; // Initialize an empty string to hold the concatenated history
+
+                            // Concatenate the history entries with appropriate formatting
                             for (let i = 0; i < response['history'].length; i++) {
-                                // Add 
-                                $('#history-log').val($('#history-log').val() + response['history'][i] + '\n');
+                                if (i % 2 === 0) {
+                                    historyText += response['history'][i] + '\t\t\t\t\t\t'; // Concatenate with a tab
+                                } else {
+                                    historyText += response['history'][i] + '\n'; // Concatenate with a newline
+                                }
                             }
+
+                            // Set the concatenated history as the value of the textarea
+                            $('#history-log').val(historyText);
                             console.log(response['history']);
 
                             var eval = (response['eval']);
@@ -245,7 +254,7 @@
 
                             // Set the width of the red progress bar to fill the remaining space
                             $('#red-progress').css('width', (100 - eval) + '%');
-
+                            
                             if (response['player_move']) {
                                 $('#uploadBtn').html('<i class="bi bi-check-lg"></i>');
                             }
@@ -269,17 +278,27 @@
                     contentType: 'application/json', // Set Content-Type header
                     data: JSON.stringify({          // Serialize data to JSON format
                         playerColor: playerColor,
-                        playerDifficulty: playerDifficulty
+                        playerDifficulty: playerDifficulty,
+                        view: activeView
                     }),
                     success: function (response) {
                         response = JSON.parse(response);
 
                         if (response['status']) {
                             $('#history-log').val('');
+                            let historyText = 'Blue\t\t\t\t\t\tRed\n'; // Initialize an empty string to hold the concatenated history
+
+                            // Concatenate the history entries with appropriate formatting
                             for (let i = 0; i < response['history'].length; i++) {
-                                // Add 
-                                $('#history-log').val($('#history-log').val() + response['history'][i] + '\n');
+                                if (i % 2 === 0) {
+                                    historyText += response['history'][i] + '\t\t\t\t\t\t'; // Concatenate with a tab
+                                } else {
+                                    historyText += response['history'][i] + '\n'; // Concatenate with a newline
+                                }
                             }
+
+                            // Set the concatenated history as the value of the textarea
+                            $('#history-log').val(historyText);
                             if (response['player_move']) {
                                 $('#uploadBtn').html('<i class="bi bi-check-lg"></i>');
                             }
@@ -298,6 +317,21 @@
 
         $('#aidedBtn').click(function () {
             activeView = 'aided';
+
+            // POST to /change_view
+            $.ajax({
+                type: 'POST',
+                url: '/change_view',
+                contentType: 'application/json', // Set Content-Type header
+                data: JSON.stringify({          // Serialize data to JSON format
+                    view: activeView
+                }),
+                success: function (response) {
+                    response = JSON.parse(response);
+                    console.log(response);
+                }
+            });
+
             $('#aidedBtn').css('background-color', '#E0D8BD');
             $('#maskedBtn').css('background-color', '#9FCC9E');
             $('#boundedBtn').css('background-color', '#9FCC9E');
@@ -305,6 +339,21 @@
         });
         $('#maskedBtn').click(function () {
             activeView = 'masked';
+
+            // POST to /change_view
+            $.ajax({
+                type: 'POST',
+                url: '/change_view',
+                contentType: 'application/json', // Set Content-Type header
+                data: JSON.stringify({          // Serialize data to JSON format
+                    view: activeView
+                }),
+                success: function (response) {
+                    response = JSON.parse(response);
+                    console.log(response);
+                }
+            });
+
             $('#aidedBtn').css('background-color', '#9FCC9E');
             $('#maskedBtn').css('background-color', '#E0D8BD');
             $('#boundedBtn').css('background-color', '#9FCC9E');
@@ -312,6 +361,21 @@
         });
         $('#boundedBtn').click(function () {
             activeView = 'bounded';
+
+            // POST to /change_view
+            $.ajax({
+                type: 'POST',
+                url: '/change_view',
+                contentType: 'application/json', // Set Content-Type header
+                data: JSON.stringify({          // Serialize data to JSON format
+                    view: activeView
+                }),
+                success: function (response) {
+                    response = JSON.parse(response);
+                    console.log(response);
+                }
+            });
+
             $('#aidedBtn').css('background-color', '#9FCC9E');
             $('#maskedBtn').css('background-color', '#9FCC9E');
             $('#boundedBtn').css('background-color', '#E0D8BD');
@@ -319,6 +383,21 @@
         });
         $('#noneBtn').click(function () {
             activeView = 'none';
+
+            // POST to /change_view
+            $.ajax({
+                type: 'POST',
+                url: '/change_view',
+                contentType: 'application/json', // Set Content-Type header
+                data: JSON.stringify({          // Serialize data to JSON format
+                    view: activeView
+                }),
+                success: function (response) {
+                    response = JSON.parse(response);
+                    console.log(response);
+                }
+            });
+
             $('#aidedBtn').css('background-color', '#9FCC9E');
             $('#maskedBtn').css('background-color', '#9FCC9E');
             $('#boundedBtn').css('background-color', '#9FCC9E');

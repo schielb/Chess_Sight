@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 from chess_homography import get_centers, tranform_points, get_red_n_blue
+from ultralytics import YOLO
 
 class Chess_Arrow:
     def __init__(self):
@@ -16,6 +17,7 @@ class Chess_Arrow:
             'g': 6,
             'h': 7
         }
+        self.model = YOLO('best.pt')
         
 
     def get_arrow(self, frame, moves, blue=True):
@@ -74,4 +76,19 @@ class Chess_Arrow:
         return img
     
     def get_bounded(self, frame):
-        pass
+        result = self.model.predict(
+            frame,
+            # conf_thres=0.5,
+            iou=0.5,
+            show_labels=False,
+            show_conf=False,
+        )
+
+        # print(len(result))
+
+        for data in result[0].boxes.xyxy:
+            # print(data)
+
+            cv.rectangle(frame, (int(data[0].item()), int(data[1].item())), (int(data[2].item()), int(data[3].item())), (0, 255, 0), 2)
+
+        return frame
