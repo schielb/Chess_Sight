@@ -4,7 +4,8 @@ from chess_homography import get_centers, tranform_points
 
 class Chess_Arrow:
     def __init__(self):
-        self.centers, self.corners = get_centers(cv.imread('query.jpg'), plot=False, return_corners=True)
+        self.query = cv.imread('query.jpg')
+        self.centers, self.corners = get_centers(self.query, plot=False, return_corners=True)
         self.letters = {
             'a': 0,
             'b': 1,
@@ -50,6 +51,6 @@ class Chess_Arrow:
         start_in_ref = (pts2_[start[0] * 8 + start[1]][0], pts2_[start[0] * 8 + start[1]][1])
         end_in_ref = (pts2_[end[0] * 8 + end[1]][0], pts2_[end[0] * 8 + end[1]][1])
 
-        cv.arrowedLine(frame, start, end, color, 2)
+        cv.arrowedLine(frame, (int(start_in_ref[0]), int(start_in_ref[1])), (int(end_in_ref[0]), int(end_in_ref[1])), color, 2)
 
         return frame
