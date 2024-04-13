@@ -24,7 +24,7 @@ class Chess_Arrow:
         Args:
             frame (np.array): Frame to draw the arrow on
             moves (list(str)): Move to draw the arrow; ex: ['e2e4', '...']
-            color (str): Color of the arrow ('red' or 'blue')
+            blue (bool): Is arrow blue ('True' or 'False')
 
         Returns:
             np.array: Frame with the arrow drawn

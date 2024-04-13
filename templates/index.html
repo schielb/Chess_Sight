@@ -55,9 +55,9 @@
                     <img src="{{ url_for('video_feed') }}" class="img-fluid" alt="Video Stream"
                         style="border-radius: 20px; width: 200%; height: auto; object-fit: fill; padding-bottom: 1%;">
                     <div class="progress">
-                        <div class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="50"
+                        <div id="blue-progress" class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="50"
                             aria-valuemin="0" aria-valuemax="100"></div>
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100"
+                        <div id="red-progress" class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100"
                             aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
@@ -96,8 +96,8 @@
                     </div>
                     <div id="history-box"
                         style="height: 100%; overflow-y: auto; overflow-x: hidden; padding-bottom: 5%;">
-                        <textarea class="form-control mb-3" rows="4"
-                            style="background-color: #284D22; color: #E0D8BD; height: 95%;" readonly></textarea>
+                        <textarea id="history-log" class="form-control mb-3" rows="4"
+                            style="background-color: #284D22; color: #E0D8BD; height: 95%;"></textarea>
                     </div>
                     <div id="views-box"
                         style="height: 100%; overflow-y: auto; overflow-x: hidden; padding-bottom: 5%; display: none;">
@@ -226,7 +226,26 @@
                         response = JSON.parse(response);
 
                         if (response['status']) {
-                            $('#history-box').val(response['history']);
+                            // Loop trough the history and update the textarea on newlines
+                            $('#history-log').val('');
+                            for (let i = 0; i < response['history'].length; i++) {
+                                // Add 
+                                $('#history-log').val($('#history-log').val() + response['history'][i] + '\n');
+                            }
+                            console.log(response['history']);
+
+                            var eval = (response['eval']);
+                            // Cast to int
+                            eval = parseInt(eval.toFixed(0));
+
+                            console.log(eval);
+
+                            // Set the width of the blue progress bar
+                            $('#blue-progress').css('width', eval + '%');
+
+                            // Set the width of the red progress bar to fill the remaining space
+                            $('#red-progress').css('width', (100 - eval) + '%');
+
                             if (response['player_move']) {
                                 $('#uploadBtn').html('<i class="bi bi-check-lg"></i>');
                             }
@@ -256,7 +275,11 @@
                         response = JSON.parse(response);
 
                         if (response['status']) {
-                            $('#history-box').val(response['history']);
+                            $('#history-log').val('');
+                            for (let i = 0; i < response['history'].length; i++) {
+                                // Add 
+                                $('#history-log').val($('#history-log').val() + response['history'][i] + '\n');
+                            }
                             if (response['player_move']) {
                                 $('#uploadBtn').html('<i class="bi bi-check-lg"></i>');
                             }
