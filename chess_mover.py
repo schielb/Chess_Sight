@@ -2,7 +2,7 @@ from stockfish import Stockfish
 
 class ChessMover:
     def __init__(self):
-        self.sf = Stockfish("/usr/games/stockfish")
+        self.sf = Stockfish("/usr/bin/stockfish")
         self.sf.set_fen_position("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
 
@@ -38,17 +38,17 @@ class ChessMover:
         self.sf.set_skill_level(level)
     
     
-# if __name__ == '__main__':
-#     mover = ChessMover()
+if __name__ == '__main__':
+    mover = ChessMover()
     
-#     while True:
-#         print(mover.get_board_visual())
+    while True:
+        print(mover.get_board_visual())
 
-#         player_move = input("Enter your move: ")
-#         if not mover.attempt_player_move(player_move):
-#             print("Invalid move")
-#             continue
+        player_move = input("Enter your move: ")
+        if not mover.attempt_player_move(player_move):
+            print("Invalid move")
+            continue
 
-#         print(mover.get_board_visual())
+        print(mover.get_board_visual())
 
-#         print("Computer move: ", mover.attempt_player_move(mover.get_best_move()))
+        print("Computer move: ", mover.attempt_player_move(mover.get_best_move()))

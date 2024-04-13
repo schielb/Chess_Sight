@@ -12,8 +12,9 @@ move_history = []
 eval_num = 50
 player_move = False
 frame = None
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(4)
 game_over = False
+bot_move = ""
 
 def generate_frames():
     global cs, frame, camera
@@ -42,7 +43,7 @@ def start_game():
     request_data = json.loads(request.data)
     print(request_data)
 
-    cs = Chess_Sight()
+    cs = Chess_Sight(debug=True)
     print("Initialized Chess Sight")
     number_of_moves = 0
     move_history = []
@@ -74,9 +75,13 @@ def start_game():
 
 @app.route('/move', methods=['GET'])
 def move():
-    global number_of_moves, move_history, eval_num, player_move, cs, frame, camera, game_over
+    global number_of_moves, move_history, eval_num, player_move, cs, frame, camera, game_over, bot_move
     
     success, frame = camera.read()
+
+    err_msg = ""
+    rec_moves = []
+    # bot_move = ""
 
     if player_move:
         res = cs.new_player_move(frame)
@@ -90,18 +95,16 @@ def move():
         status = res[0]
         if status:
             number_of_moves += 1
-            move_history.append(res[1])
             eval_num = cs.mover.get_eval()
             if player_move:
-                rec_moves = []
+                move_history.append(res[1])
                 if res[2] is None:
-                    bot_move = ""
                     game_over = True
                 else:
                     bot_move = res[2]
                     game_over = False
             else:
-                bot_move = ""
+                move_history.append(bot_move)
                 if res[1] is None:
                     game_over = True
                 else:
@@ -124,6 +127,8 @@ def move():
         "err_msg": err_msg,
         "bot_move": bot_move
     }
+
+    print(response)
 
     return json.dumps(response)
 
