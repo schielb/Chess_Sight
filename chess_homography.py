@@ -182,7 +182,24 @@ def get_board(query, canvas, centers, corners, patttern_size:tuple=(8,8), plot:b
     # img2 = cv.GaussianBlur(img1, (3, 3), 0)
     # diff = cv.absdiff(img1, img2)
     return ret, warped_canvas, pieces, occupancy, spaces_occupant
+castle_sets = [
+    ((['e1'], ['g1']), set(['e1', 'h1']), set(['g1', 'f1'])),
+    ((['e1'], ['b1']), set(['e1', 'a1']), set(['b1', 'c1'])),
+    ((['e1'], ['c1']), set(['e1', 'a1']), set(['c1', 'd1'])),
+    ((['e8'], ['g8']), set(['e8', 'h8']), set(['g8', 'f8'])),
+    ((['e8'], ['b8']), set(['e8', 'a8']), set(['b8', 'c8'])),
+    ((['e8'], ['c8']), set(['e8', 'a8']), set(['c8', 'd8'])),
+]
 
+def check_castle(starts, ends):
+    starts = set(starts)
+    ends = set(ends)
+    for m, s, e in castle_sets:
+        if s == starts and e == ends:
+            return m
+    else:
+        return None
+    
 def get_move(state_prev, state_current):
     state_prev = set(state_prev)
     state_current = set(state_current)
@@ -190,11 +207,16 @@ def get_move(state_prev, state_current):
     start_locs = list(state_prev.difference(state_intersection))
     end_locs = list(state_current.difference(state_intersection))
     if len(start_locs) != len(end_locs):
-        print("ERROR: expected states to have equal occupancies")
-    if len(start_locs) > 1:
-        print("ERROR: more than one change occurred. Don't know how to resolve changes")
+        print("WARNING: expected states to have equal occupancies")
     if len(start_locs) == 0:
         print("WARNING: No change occurred")
+    if len(start_locs) == 2 and len(end_locs) == 2:
+        locs = check_castle(start_locs, end_locs)
+        if isinstance(start_locs, type(None)):
+            print("WARNING: Not a castle")
+        else:
+            print("Castling!")
+            start_locs, end_locs = locs
     return start_locs, end_locs
 
 # Get the centers of each square of the chessboard
