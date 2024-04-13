@@ -60,7 +60,7 @@ class Chess_Sight:
             list: [status, message]
             - [False, "Game not ready yet"] -> If the game is not ready yet
             - [False, "Game already started"] -> If the game is already started
-            - [True, "Game starting"] -> If the game started successfully
+            - [True, <suggested_moves>] -> If the game started successfully, suggest moves to player
             - [True, <b_move>] -> If the game started successfully and the bot starts first, offering the bot's first move
         """
         if self.state == INIT:
@@ -81,7 +81,9 @@ class Chess_Sight:
             self.player_color = 'blue'
             self.bot_color = 'red'
 
-            return [True, "Game starting"]
+            self.out_str_suggest = self.mover.get_move_suggestions(3)
+
+            return [True, self.out_str_suggest]
         else:
             self.player_color = 'red'
             self.bot_color = 'blue'

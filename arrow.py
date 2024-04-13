@@ -42,6 +42,8 @@ class Chess_Arrow:
 
         pts2_ = np.array(pts2).reshape(-1, 2)
 
+        thickness = (2 * len(moves)) + 1
+
         for move in moves:
             start = (self.letters[move[0]], 8 - (int(move[1])))
             end = (self.letters[move[2]], 8 - (int(move[3])))
@@ -52,6 +54,8 @@ class Chess_Arrow:
             start_in_ref = (pts2_[start[0] * 8 + start[1]][0], pts2_[start[0] * 8 + start[1]][1])
             end_in_ref = (pts2_[end[0] * 8 + end[1]][0], pts2_[end[0] * 8 + end[1]][1])
 
-            cv.arrowedLine(frame, (int(start_in_ref[0]), int(start_in_ref[1])), (int(end_in_ref[0]), int(end_in_ref[1])), color, 2)
+            cv.arrowedLine(frame, (int(start_in_ref[0]), int(start_in_ref[1])), (int(end_in_ref[0]), int(end_in_ref[1])), color, thickness)
+
+            thickness -= 2
 
         return frame
