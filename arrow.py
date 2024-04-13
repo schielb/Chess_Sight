@@ -18,12 +18,12 @@ class Chess_Arrow:
         }
         
 
-    def get_arrow(self, frame, move, blue=True):
+    def get_arrow(self, frame, moves, blue=True):
         """Draw an arrow on the frame
 
         Args:
             frame (np.array): Frame to draw the arrow on
-            move (str): Move to draw the arrow; ex: 'e2e4'
+            moves (list(str)): Move to draw the arrow; ex: ['e2e4', '...']
             color (str): Color of the arrow ('red' or 'blue')
 
         Returns:
@@ -36,21 +36,22 @@ class Chess_Arrow:
         else:
             color = (0, 0, 255)
 
-        start = (self.letters[move[0]], 8 - (int(move[1])))
-        end = (self.letters[move[2]], 8 - (int(move[3])))
-
-        start = (start[1], start[0])
-        end = (end[1], end[0])
-
         ref_ = frame.copy()
 
         ret, pts1, pts2 = tranform_points(self.query, ref_, self.centers, False)
 
         pts2_ = np.array(pts2).reshape(-1, 2)
 
-        start_in_ref = (pts2_[start[0] * 8 + start[1]][0], pts2_[start[0] * 8 + start[1]][1])
-        end_in_ref = (pts2_[end[0] * 8 + end[1]][0], pts2_[end[0] * 8 + end[1]][1])
+        for move in moves:
+            start = (self.letters[move[0]], 8 - (int(move[1])))
+            end = (self.letters[move[2]], 8 - (int(move[3])))
 
-        cv.arrowedLine(frame, (int(start_in_ref[0]), int(start_in_ref[1])), (int(end_in_ref[0]), int(end_in_ref[1])), color, 2)
+            start = (start[1], start[0])
+            end = (end[1], end[0])
+
+            start_in_ref = (pts2_[start[0] * 8 + start[1]][0], pts2_[start[0] * 8 + start[1]][1])
+            end_in_ref = (pts2_[end[0] * 8 + end[1]][0], pts2_[end[0] * 8 + end[1]][1])
+
+            cv.arrowedLine(frame, (int(start_in_ref[0]), int(start_in_ref[1])), (int(end_in_ref[0]), int(end_in_ref[1])), color, 2)
 
         return frame
