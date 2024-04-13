@@ -61,13 +61,17 @@ class Chess_Arrow:
         return frame
     
     def get_masked(self, frame):
-        red_mask, blue_mask = get_red_n_blue(frame, False)
+        red, blue = get_red_n_blue(frame, False)
 
-        # Recolor red to red
-        red = np.where(red_mask == 255)
-        blue = np.where(blue_mask == 255)
+        img = np.concatenate(
+            (np.expand_dims(red, axis=0),
+             np.zeros((1, *red.shape)),
+             np.expand_dims(blue, axis=0)),
+            axis=0
+        )
+        img = img.transpose(1,2,0)
 
-        return np.bitwise_or(red, blue)
+        return img
     
     def get_bounded(self, frame):
         pass
