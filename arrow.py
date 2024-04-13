@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-from chess_homography import get_centers, tranform_points
+from chess_homography import get_centers, tranform_points, get_red_n_blue
 
 class Chess_Arrow:
     def __init__(self):
@@ -59,3 +59,9 @@ class Chess_Arrow:
             thickness -= 2
 
         return frame
+    
+    def get_masked(self, frame):
+        return get_red_n_blue(frame)
+    
+    def get_bounded(self, frame):
+        pass
