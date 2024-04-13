@@ -61,7 +61,7 @@ class Chess_Arrow:
         return frame
     
     def get_masked(self, frame):
-        red, blue = get_red_n_blue(frame, False)
+        blue, red = get_red_n_blue(frame, False)
 
         img = np.concatenate(
             (np.expand_dims(red, axis=0),
