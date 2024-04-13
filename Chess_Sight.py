@@ -37,12 +37,15 @@ class Chess_Sight:
         self.query = cv.imread('query.jpg')
         self.centers, self.corners = get_centers(self.query, plot=False, return_corners=True)
         self.reference = None
-        self.prev_state = [
-            'a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 
-            'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2', 
-            'a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7', 
-            'a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8'
-        ]
+        self.prev_state = {
+            "blue":[
+                'a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 
+                'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'], 
+            "red": [
+                'a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7', 
+                'a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8']
+        }
+        self.diff = None
 
         self.__run()
 
@@ -70,6 +73,13 @@ class Chess_Sight:
         self.sig_start_game = True
 
         self.mover.set_difficulty(difficulty)
+
+        if player_first:
+            self.player_color = 'blue'
+            self.bot_color = 'red'
+        else:
+            self.player_color = 'red'
+            self.bot_color = 'blue'
 
         self.__run()
 
@@ -162,13 +172,18 @@ class Chess_Sight:
             if self.sig_player_moved:
                 self.sig_player_moved = False
 
-                ret, reference, diff, occupancy, current_state = get_board(self.query, self.reference, self.centers, self.corners, plot=False)
+                ret, reference, self.diff, current_state = get_board(self.query, self.reference, self.centers, self.corners, plot=False)
+
+                current_state_player = current_state[self.player_color]
 
                 if self.debug: print("Move attempt: ", ret)
 
                 if ret:
-                    start, end = get_move(self.prev_state, current_state)
-                    move = start + end
+                    start, end = get_move(self.prev_state[self.player_color], current_state_player)
+                    move = str(start[0]) + str(end[0])
+                    print(type(move))
+
+                    if self.debug: print("Player move: ", move)
 
                     self.out_stat_player_move = self.mover.attempt_player_move(move)
 
@@ -178,7 +193,7 @@ class Chess_Sight:
                         # self.out_str_suggest = self.mover.get_eval()
                         self.prev_state = current_state
                         self.state = COMPUTER_TURN
-                        if self.debug: print("STATE: PLAYER_TURN -> VERIFY_PLAYER")
+                        if self.debug: print("STATE: PLAYER_TURN -> COMPUTER_TURN")
                     else:
                         print("Invalid move")
                         self.state = PLAYER_TURN
@@ -189,20 +204,24 @@ class Chess_Sight:
             if self.sig_bot_moved:
                 self.sig_bot_moved = False
 
-                ret, reference, diff, occupancy, current_state = get_board(self.query, self.reference, self.centers, self.corners, plot=False)
+                ret, reference, self.diff, current_state = get_board(self.query, self.reference, self.centers, self.corners, plot=False)
+
+                current_state_bot = current_state[self.bot_color]
 
                 self.out_stat_bot_move = ret
 
                 if self.debug: print("Bot attempt: ", ret)
 
                 if ret:
-                    start, end = get_move(self.prev_state, current_state)
-                    move = start + end
+                    start, end = get_move(self.prev_state[self.bot_color], current_state_bot)
+                    move = str(start[0]) + str(end[0])
 
                     self.out_stat_bot_obeyed = move == self.out_str_bot_move
                     
                     if self.out_stat_bot_obeyed:
                         self.prev_state = current_state
+                        self.mover.attempt_player_move(move)
+                        self.out_str_suggest = self.mover.get_move_suggestions(3)
                         self.state = PLAYER_TURN
                         if self.debug: print("STATE: COMPUTER_TURN -> PLAYER_TURN")
                     else:
